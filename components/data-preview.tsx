@@ -81,10 +81,10 @@ export function DataPreview({ files, onValidationComplete }: DataPreviewProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Eye className="w-5 h-5" />
-            Data Preview & Validation
+            Prévisualisation & Validation
           </CardTitle>
           <Button onClick={generatePreview} disabled={isLoading} variant={hasPreviewedOnce ? "outline" : "default"}>
-            {isLoading ? "Analyzing..." : hasPreviewedOnce ? "Refresh Preview" : "Preview Data"}
+            {isLoading ? "Analyzing..." : hasPreviewedOnce ? "Actualiser la prévisualisation" : "Prévisualiser les données"}
           </Button>
         </div>
       </CardHeader>
@@ -94,9 +94,9 @@ export function DataPreview({ files, onValidationComplete }: DataPreviewProps) {
             <div className="flex items-center justify-center w-16 h-16 bg-secondary/10 rounded-full mx-auto mb-4">
               <FileSpreadsheet className="w-8 h-8 text-secondary" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">Preview Your Data</h3>
+            <h3 className="text-lg font-semibold mb-2">Prévisualisez vos données</h3>
             <p className="text-muted-foreground mb-4">
-              Click "Preview Data" to validate your Excel files and see a sample of the data before consolidation.
+              Cliquez sur "Prévisualiser les données" pour valider vos fichiers Excel et voir un échantillon des données avant la consolidation.
             </p>
           </div>
         )}
@@ -104,7 +104,7 @@ export function DataPreview({ files, onValidationComplete }: DataPreviewProps) {
         {isLoading && (
           <div className="text-center py-8">
             <div className="animate-spin w-8 h-8 border-2 border-secondary border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Analyzing your Excel files...</p>
+            <p className="text-muted-foreground">Analyse des fichiers Excel...</p>
           </div>
         )}
 
@@ -115,12 +115,12 @@ export function DataPreview({ files, onValidationComplete }: DataPreviewProps) {
               <div className="text-center p-4 bg-secondary/5 rounded-lg">
                 <FileText className="w-6 h-6 text-secondary mx-auto mb-2" />
                 <div className="text-2xl font-bold text-secondary">{summary.totalFiles}</div>
-                <div className="text-sm text-muted-foreground">Total Files</div>
+                <div className="text-sm text-muted-foreground">Fichiers totaux</div>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-lg">
                 <CheckCircle2 className="w-6 h-6 text-green-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-green-600">{summary.validFiles}</div>
-                <div className="text-sm text-muted-foreground">Valid Files</div>
+                <div className="text-sm text-muted-foreground">Fichiers valides</div>
               </div>
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <BarChart3 className="w-6 h-6 text-blue-600 mx-auto mb-2" />
@@ -130,7 +130,7 @@ export function DataPreview({ files, onValidationComplete }: DataPreviewProps) {
               <div className="text-center p-4 bg-purple-50 rounded-lg">
                 <Columns className="w-6 h-6 text-purple-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-purple-600">{summary.allColumns.length}</div>
-                <div className="text-sm text-muted-foreground">Unique Columns</div>
+                <div className="text-sm text-muted-foreground">Colonnes uniques</div>
               </div>
             </div>
 
@@ -139,8 +139,8 @@ export function DataPreview({ files, onValidationComplete }: DataPreviewProps) {
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  {summary.totalFiles - summary.validFiles} file(s) have validation errors. Please review and fix the
-                  issues before consolidating.
+                  {summary.totalFiles - summary.validFiles} fichier(s) ont une erreur de validation. Veuillez corriger les
+                  problèmes avant de consolider.
                 </AlertDescription>
               </Alert>
             )}
@@ -149,7 +149,7 @@ export function DataPreview({ files, onValidationComplete }: DataPreviewProps) {
               <Alert className="border-green-200 bg-green-50">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-800">
-                  All files passed validation! Ready for consolidation.
+                  Tous les fichiers ont passé la validation! Prêts à la consolidation.
                 </AlertDescription>
               </Alert>
             )}
@@ -175,8 +175,8 @@ export function DataPreview({ files, onValidationComplete }: DataPreviewProps) {
                     <div>
                       <h3 className="text-lg font-semibold">{preview.filename}</h3>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>{preview.totalRows.toLocaleString()} rows</span>
-                        <span>{preview.columns.length} columns</span>
+                        <span>{preview.totalRows.toLocaleString()} lignes</span>
+                        <span>{preview.columns.length} colonnes</span>
                       </div>
                     </div>
                     <Badge variant={preview.isValid ? "default" : "destructive"}>
@@ -202,7 +202,7 @@ export function DataPreview({ files, onValidationComplete }: DataPreviewProps) {
                   {preview.columns.length > 0 && (
                     <div>
                       <h4 className="font-medium mb-2">Columns ({preview.columns.length})</h4>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 overflow-auto">
                         {preview.columns.map((column, colIndex) => (
                           <Badge key={colIndex} variant="outline" className="text-xs">
                             {column}
@@ -215,7 +215,7 @@ export function DataPreview({ files, onValidationComplete }: DataPreviewProps) {
                   {/* Sample Data */}
                   {preview.sampleRows.length > 0 && (
                     <div>
-                      <h4 className="font-medium mb-2">Sample Data (First 5 rows)</h4>
+                      <h4 className="font-medium mb-2">Données d'exemple (5 premières lignes)</h4>
                       <ScrollArea className="h-64 w-full border rounded-md overflow-auto">
                         <Table>
                           <TableHeader>

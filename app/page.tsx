@@ -10,9 +10,9 @@ export default function HomePage() {
         <div className="space-y-8">
           {/* Hero Section */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold text-foreground text-balance">Consilateur excel</h1>
+            <h1 className="text-4xl font-bold text-foreground text-balance">Excel consolidator</h1>
             <p className="text-xl text-muted-foreground text-pretty max-w-2xl mx-auto">
-              Merge multiple Excel files into one unified document with automatic data validation and formatting
+              Fusionnez plusieurs fichiers Excel en un document unique avec une validation et un formatage automatique
             </p>
           </div>
 

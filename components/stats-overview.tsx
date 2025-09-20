@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, Merge, Download, Shield } from "lucide-react"
+import { Download, FileText, Merge, Shield } from "lucide-react"
 
 export function StatsOverview() {
   const stats = [
@@ -30,7 +30,7 @@ export function StatsOverview() {
   ]
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 overflow-auto">
       {stats.map((stat, index) => (
         <Card key={index} className="text-center">
           <CardHeader className="pb-3">
@@ -39,7 +39,7 @@ export function StatsOverview() {
             </div>
             <CardTitle className="text-lg">{stat.title}</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="pt-0 overflow-auto">
             <div className="text-2xl font-bold text-secondary mb-1">{stat.value}</div>
             <p className="text-sm text-muted-foreground">{stat.description}</p>
           </CardContent>

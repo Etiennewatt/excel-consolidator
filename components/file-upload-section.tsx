@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useCallback } from "react"
-import { useDropzone } from "react-dropzone"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Upload, FileSpreadsheet, X, AlertCircle, CheckCircle2, Loader2, Download } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { AlertCircle, CheckCircle2, Download, FileSpreadsheet, Loader2, Upload, X } from "lucide-react"
+import { useCallback, useState } from "react"
+import { useDropzone } from "react-dropzone"
 import { DataPreview } from "./data-preview"
 
 interface UploadedFile {
@@ -151,7 +151,7 @@ export function FileUploadSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="w-5 h-5" />
-            Upload Excel Files
+            Téléverser les fichiers Excel
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -198,8 +198,8 @@ export function FileUploadSection() {
                 <FileSpreadsheet className="w-5 h-5" />
                 Uploaded Files ({uploadedFiles.length})
               </CardTitle>
-              <Button variant="outline" size="sm" onClick={resetUpload}>
-                Clear All
+              <Button variant="outline" className="bg-red-50 rounded-md" size="sm" onClick={resetUpload}>
+                Supprimer tous
               </Button>
             </div>
           </CardHeader>

@@ -10,7 +10,7 @@ export function Header() {
           </div>
           <div>
             <h1 className="text-xl font-semibold text-card-foreground">Excel Consolidator</h1>
-            <p className="text-sm text-muted-foreground">Professional data merging tool</p>
+            <p className="text-sm text-muted-foreground">outil de fusion de données Excel</p>
           </div>
         </div>
       </div>
