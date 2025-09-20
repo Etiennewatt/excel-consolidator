@@ -1,4 +1,4 @@
-import FileUploadSection from "@/components/file-upload-section"
+import { FileUploadSection } from "@/components/file-upload-section"
 import { Header } from "@/components/header"
 import { StatsOverview } from "@/components/stats-overview"
 

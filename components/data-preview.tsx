@@ -1,14 +1,14 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FileSpreadsheet, AlertTriangle, CheckCircle2, Eye, BarChart3, Columns, FileText } from "lucide-react"
+import { AlertTriangle, BarChart3, CheckCircle2, Columns, Eye, FileSpreadsheet, FileText } from "lucide-react"
+import { useState } from "react"
 
 interface PreviewData {
   filename: string
@@ -216,7 +216,7 @@ export function DataPreview({ files, onValidationComplete }: DataPreviewProps) {
                   {preview.sampleRows.length > 0 && (
                     <div>
                       <h4 className="font-medium mb-2">Sample Data (First 5 rows)</h4>
-                      <ScrollArea className="h-64 w-full border rounded-md">
+                      <ScrollArea className="h-64 w-full border rounded-md overflow-auto">
                         <Table>
                           <TableHeader>
                             <TableRow>
@@ -227,7 +227,7 @@ export function DataPreview({ files, onValidationComplete }: DataPreviewProps) {
                               ))}
                             </TableRow>
                           </TableHeader>
-                          <TableBody>
+                          <TableBody className="overflow-auto">
                             {preview.sampleRows.map((row, rowIndex) => (
                               <TableRow key={rowIndex}>
                                 {preview.columns.map((column, colIndex) => (

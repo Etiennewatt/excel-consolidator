@@ -103,24 +103,24 @@ export async function POST(request: NextRequest) {
     const finalColumns = Array.from(allColumns).sort()
 
     // Add source file column
-    finalColumns.push("Source File")
+    // finalColumns.push("Source File")
 
-    for (const processedFile of processedFiles) {
-      for (const row of processedFile.data) {
-        const consolidatedRow: ExcelRow = {}
+    // for (const processedFile of processedFiles) {
+    //   for (const row of processedFile.data) {
+    //     const consolidatedRow: ExcelRow = {}
 
-        // Ensure all columns are present in each row
-        finalColumns.forEach((column) => {
-          if (column === "Source File") {
-            consolidatedRow[column] = row["_source_file"] || processedFile.filename
-          } else {
-            consolidatedRow[column] = row[column] || ""
-          }
-        })
+    //     // Ensure all columns are present in each row
+    //     finalColumns.forEach((column) => {
+    //       if (column === "Source File") {
+    //         consolidatedRow[column] = row["_source_file"] || processedFile.filename
+    //       } else {
+    //         consolidatedRow[column] = row[column] || ""
+    //       }
+    //     })
 
-        consolidatedData.push(consolidatedRow)
-      }
-    }
+    //     consolidatedData.push(consolidatedRow)
+    //   }
+    // }
 
     // Sort by first column if it exists (could be Request Number, ID, etc.)
     if (finalColumns.length > 0 && consolidatedData.length > 0) {
