@@ -62,25 +62,6 @@ export async function POST(request: NextRequest) {
         // const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: true }) as any[][]
         // Convertir chaque ligne manuellement pour garder exactement ce qui est affiché
 
-        const range = XLSX.utils.decode_range(worksheet["!ref"]!);
-        const jsonData: string[][] = [];
-
-        for (let R = range.s.r; R <= range.e.r; ++R) {
-          const row: string[] = [];
-          for (let C = range.s.c; C <= range.e.c; ++C) {
-            const cellAddress = { c: C, r: R };
-            const cellRef = XLSX.utils.encode_cell(cellAddress);
-            const cell = worksheet[cellRef];
-            if (cell) {
-              // Utiliser w = "formatted text", v = valeur brute
-              row.push(cell.w ?? String(cell.v ?? ""));
-            } else {
-              row.push("");
-            }
-          }
-          jsonData.push(row);
-        }
-
         // const range = XLSX.utils.decode_range(worksheet["!ref"]!);
         // const jsonData: string[][] = [];
 
@@ -91,22 +72,46 @@ export async function POST(request: NextRequest) {
         //     const cellRef = XLSX.utils.encode_cell(cellAddress);
         //     const cell = worksheet[cellRef];
         //     if (cell) {
-        //       if (cell.t === "n") {
-        //         // nombre → convertir en string avec toutes les décimales
-        //         row.push(cell.v.toString());
-        //       } else if (cell.t === "d") {
-        //         // date → convertir en texte ISO ou garder comme Excel
-        //         row.push(cell.v.toString());
-        //       } else {
-        //         // texte ou autre type
-        //         row.push(cell.v ?? "");
-        //       }
+        //       // Utiliser w = "formatted text", v = valeur brute
+        //       row.push(cell.w ?? String(cell.v ?? ""));
         //     } else {
         //       row.push("");
         //     }
         //   }
         //   jsonData.push(row);
         // }
+
+        const range = XLSX.utils.decode_range(worksheet["!ref"]!);
+        const jsonData: string[][] = [];
+
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+          const row: string[] = [];
+          for (let C = range.s.c; C <= range.e.c; ++C) {
+            const cellAddress = { c: C, r: R };
+            const cellRef = XLSX.utils.encode_cell(cellAddress);
+            const cell = worksheet[cellRef];
+            const isArrayCell = cell?.w?.includes("/");
+            if (cell) {
+              if(isArrayCell){
+                row.push(cell.w ?? String(cell.v ?? ""));
+              }
+              else if (cell.t === "n") {
+                // nombre → convertir en string avec toutes les décimales
+                row.push(cell.v.toString());
+              } else if (cell.t === "d") {
+                // date → convertir en texte ISO ou garder comme Excel
+                row.push(cell.v.toString());
+              } else {
+                // texte ou autre type
+                // row.push(cell.v ?? "");
+                row.push(cell.w ?? String(cell.v ?? ""));
+              }
+            } else {
+              row.push("");
+            }
+          }
+          jsonData.push(row);
+        }
 
         if (jsonData.length === 0) {
           return NextResponse.json(
