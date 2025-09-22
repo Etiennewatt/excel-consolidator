@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
 
     const previews: PreviewData[] = []
     let referenceHeaders: string[] | null = null
+    let referenceFirstRow: any[] | null = null
 
     for (const file of files) {
       try {
@@ -94,17 +95,31 @@ export async function POST(request: NextRequest) {
           errors.push("No column headers found.")
         }
 
-        // // Vérifie doublons
-        // const uniqueHeaders = new Set(headers)
-        // if (uniqueHeaders.size !== headers.length) {
-        //   errors.push("Duplicate column headers detected.")
-        // }
+        const firstDataRow = jsonData.length > 1 ? jsonData[1] : []
 
         // Vérifie cohérence avec le 1er fichier
+        let isValid = true
         if (!referenceHeaders) {
           referenceHeaders = headers
-        } else if (JSON.stringify(headers) !== JSON.stringify(referenceHeaders)) {
-          errors.push("Column structure differs from the first file.")
+          referenceFirstRow = firstDataRow
+        } else {
+          if (JSON.stringify(headers) !== JSON.stringify(referenceHeaders)) {
+            // Headers différents → comparer la première ligne
+            const currentFirstRowString = JSON.stringify(firstDataRow)
+            const referenceFirstRowString = JSON.stringify(referenceFirstRow)
+
+            if (currentFirstRowString === referenceFirstRowString) {
+              // ✅ On considère valide car les données de la première ligne sont identiques
+              errors.push(
+                "Column headers differ, but first data row is identical. File accepted."
+              )
+            } else {
+              // ❌ Invalide car headers ET données diffèrent
+              errors.push("Column structure differs from the first file.")
+              errors.push("First data row also differs from the first file.")
+              isValid = false
+            }
+          }
         }
 
         // Construction des sampleRows (préserve ordre)
@@ -112,7 +127,6 @@ export async function POST(request: NextRequest) {
           const rowObject: Record<string, any> = {}
           headers.forEach((header, i) => {
             const value = row[i]
-            // ✅ Si c'est une date, renvoie en ISO lisible
             rowObject[header] =
               value instanceof Date
                 ? value.toISOString().split("T")[0]
@@ -130,7 +144,7 @@ export async function POST(request: NextRequest) {
           columns: headers,
           sampleRows,
           totalRows,
-          isValid: errors.length === 0,
+          isValid: isValid && errors.length === 0 || errors.every(e => e.includes("accepted")), // ✅ reste valide si seule l'erreur "accepted" est présente
           errors,
         })
       } catch (error) {
@@ -152,9 +166,7 @@ export async function POST(request: NextRequest) {
         totalFiles: files.length,
         validFiles: previews.filter((p) => p.isValid).length,
         totalRows: previews.reduce((sum, p) => sum + p.totalRows, 0),
-        allColumns: Array.from(
-          new Set(previews.flatMap((p) => p.columns))
-        ),
+        allColumns: Array.from(new Set(previews.flatMap((p) => p.columns))),
       },
     })
   } catch (error) {
