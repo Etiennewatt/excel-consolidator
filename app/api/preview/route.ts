@@ -94,11 +94,11 @@ export async function POST(request: NextRequest) {
           errors.push("No column headers found.")
         }
 
-        // Vérifie doublons
-        const uniqueHeaders = new Set(headers)
-        if (uniqueHeaders.size !== headers.length) {
-          errors.push("Duplicate column headers detected.")
-        }
+        // // Vérifie doublons
+        // const uniqueHeaders = new Set(headers)
+        // if (uniqueHeaders.size !== headers.length) {
+        //   errors.push("Duplicate column headers detected.")
+        // }
 
         // Vérifie cohérence avec le 1er fichier
         if (!referenceHeaders) {
