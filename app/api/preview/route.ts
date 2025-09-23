@@ -10,6 +10,15 @@ interface PreviewData {
   errors: string[]
 }
 
+// ✅ Fonction utilitaire pour normaliser les chaînes
+function normalizeString(value: string): string {
+  return value
+    .normalize("NFD") // Sépare les caractères de base et les accents
+    .replace(/[\u0300-\u036f]/g, "") // Supprime les accents
+    .toLowerCase() // Passe en minuscule
+    .trim()
+}
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
@@ -21,11 +30,11 @@ export async function POST(request: NextRequest) {
 
     const previews: PreviewData[] = []
     let referenceHeaders: string[] | null = null
-    let referenceFirstRow: any[] | null = null
+    let referenceFirstRow: string[] | null = null
 
     for (const file of files) {
       try {
-        // Validate file type
+        // ✅ Vérif type
         if (!file.name.match(/\.(xlsx|xls)$/i)) {
           previews.push({
             filename: file.name,
@@ -38,7 +47,7 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        // Validate file size
+        // ✅ Vérif taille
         if (file.size > 50 * 1024 * 1024) {
           previews.push({
             filename: file.name,
@@ -52,10 +61,9 @@ export async function POST(request: NextRequest) {
         }
 
         const buffer = await file.arrayBuffer()
-        // ✅ cellDates:true pour lire les dates comme des objets Date
         const workbook = XLSX.read(buffer, { type: "array", cellDates: true })
-
         const firstSheetName = workbook.SheetNames[0]
+
         if (!firstSheetName) {
           previews.push({
             filename: file.name,
@@ -69,7 +77,6 @@ export async function POST(request: NextRequest) {
         }
 
         const worksheet = workbook.Sheets[firstSheetName]
-        // ✅ header:1 + raw:true => conserve ordre et types exacts
         const jsonData = XLSX.utils.sheet_to_json<any[]>(worksheet, {
           header: 1,
           defval: null,
@@ -88,7 +95,13 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        const headers = jsonData[0].map((h: any) => (h ? String(h).trim() : "")) as string[]
+        // ✅ Lecture des headers + suppression colonnes vides en fin
+        let headers = jsonData[0].map((h: any) => (h ? String(h).trim() : "")) as string[]
+        while (headers.length > 0 && headers[headers.length - 1] === "") {
+          headers.pop()
+        }
+
+        const normalizedHeaders = headers.map(normalizeString)
         const errors: string[] = []
 
         if (!headers.length) {
@@ -96,25 +109,30 @@ export async function POST(request: NextRequest) {
         }
 
         const firstDataRow = jsonData.length > 1 ? jsonData[1] : []
+        const normalizedFirstRow = firstDataRow
+          .slice(0, headers.length) // ✅ Tronquer aussi les colonnes vides
+          .map((v: any) => (v !== null && v !== undefined ? normalizeString(String(v)) : ""))
 
-        // Vérifie cohérence avec le 1er fichier
         let isValid = true
         if (!referenceHeaders) {
-          referenceHeaders = headers
-          referenceFirstRow = firstDataRow
+          referenceHeaders = normalizedHeaders
+          referenceFirstRow = normalizedFirstRow
         } else {
-          if (JSON.stringify(headers) !== JSON.stringify(referenceHeaders)) {
-            // Headers différents → comparer la première ligne
-            const currentFirstRowString = JSON.stringify(firstDataRow)
+          // ✅ Comparaison des headers normalisés (longueurs égales grâce au pop)
+          if (JSON.stringify(normalizedHeaders) !== JSON.stringify(referenceHeaders)) {
+            console.log({
+              header01: JSON.stringify(normalizedHeaders),
+              header02: JSON.stringify(referenceHeaders),
+            })
+
+            const currentFirstRowString = JSON.stringify(normalizedFirstRow)
             const referenceFirstRowString = JSON.stringify(referenceFirstRow)
 
             if (currentFirstRowString === referenceFirstRowString) {
-              // ✅ On considère valide car les données de la première ligne sont identiques
               errors.push(
-                "Column headers differ, but first data row is identical. File accepted."
+                "Column headers differ (case/accents/empty columns), but first data row is identical. File accepted."
               )
             } else {
-              // ❌ Invalide car headers ET données diffèrent
               errors.push("Column structure differs from the first file.")
               errors.push("First data row also differs from the first file.")
               isValid = false
@@ -122,7 +140,7 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // Construction des sampleRows (préserve ordre)
+        // ✅ Construction des sampleRows alignés sur les colonnes utiles
         const sampleRows = jsonData.slice(1, 6).map((row) => {
           const rowObject: Record<string, any> = {}
           headers.forEach((header, i) => {
@@ -135,16 +153,22 @@ export async function POST(request: NextRequest) {
           return rowObject
         })
 
-        const totalRows = jsonData.slice(1).filter(
-          (row) => row.some((cell) => cell !== null && cell !== undefined && cell !== "")
-        ).length
+        const totalRows = jsonData
+          .slice(1)
+          .filter((row) =>
+            row.slice(0, headers.length).some(
+              (cell) => cell !== null && cell !== undefined && cell !== ""
+            )
+          ).length
 
         previews.push({
           filename: file.name,
           columns: headers,
           sampleRows,
           totalRows,
-          isValid: isValid && errors.length === 0 || errors.every(e => e.includes("accepted")), // ✅ reste valide si seule l'erreur "accepted" est présente
+          isValid:
+            (isValid && errors.length === 0) ||
+            errors.every((e) => e.includes("accepted")),
           errors,
         })
       } catch (error) {
